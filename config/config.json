@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "webuser",
+    "password": "password",
+    "database": "erp_db_v3",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "webuser",
+    "password": "password",
+    "database": "erp_db_v3",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "webuser",
+    "password": "password",
+    "database": "erp_db_v3",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
