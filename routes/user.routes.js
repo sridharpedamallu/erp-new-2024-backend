@@ -3,6 +3,8 @@ const router = express.Router();
 const controller = require("../controllers/user.controller.js");
 
 router.post("/", controller.create);
+router.get("/tenant/:tenantId", controller.findAllByTenant);
+
 router.get("/", controller.findAll);
 router.get("/:id", controller.findOne);
 router.post("/auth", controller.auth);

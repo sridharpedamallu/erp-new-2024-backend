@@ -13,14 +13,12 @@ const common_include = [
         attributes: ['name']
     }]
 
-const common_filter = { 'isActive': true };
+const common_filter = {};
 
 // Retrieve all records from the database.
 exports.findAll = (req, res, _model, _include = [], _filter = {}) => {
     const include = [..._include, ...common_include];
     const filter = _filter == undefined ? { ...common_filter } : { ..._filter }
-
-    console.log(filter, _filter);
 
     _model.findAll({
         where: { ...filter },
@@ -47,28 +45,28 @@ exports.findAll = (req, res, _model, _include = [], _filter = {}) => {
         });
 };
 
-// // Find a single record with an id
-// exports.findOne = (req, res, model, include) => {
-//     const id = req.params.id;
+// Find a single record with an id
+exports.findOne = (req, res, model, include) => {
+    const id = req.params.id;
 
-//     model.findByPk(id, {
-//         include
-//     })
-//         .then(data => {
-//             if (data) {
-//                 res.send(data);
-//             } else {
-//                 res.status(404).send({
-//                     message: `Cannot find data with id=${id}.`
-//                 });
-//             }
-//         })
-//         .catch(err => {
-//             res.status(500).send({
-//                 message: "Error retrieving data with id=" + id
-//             });
-//         });
-// };
+    model.findByPk(id, {
+        include
+    })
+        .then(data => {
+            if (data) {
+                res.send(data);
+            } else {
+                res.status(404).send({
+                    message: `Cannot find data with id=${id}.`
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Error retrieving data with id=" + id
+            });
+        });
+};
 
 // Update a record by the id in the request
 exports.update = (req, res, model) => {

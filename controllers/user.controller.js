@@ -19,9 +19,13 @@ const include = [
         attributes: ['name']
     }];
 
-const filter = { "isActive": true };
+const filter = {};
 
-exports.findAll = (req, res) => { c.findAll(req, res, User, include, filter) };
+exports.findAll = (req, res) => { c.findAll(req, res, User, include, {}) };
+exports.findAllByTenant = (req, res) => {
+    const f = { tenantId: req.params.tenantId };
+    c.findAll(req, res, User, include, f)
+};
 exports.findOne = (req, res) => {
     const _filter = { ...filter };
     _filter.id = req.params.id;
@@ -39,15 +43,22 @@ exports.auth = (req, res) => {
             });
         }
         else {
-            const date = now();
-            const expireDate = date.setTime(date.getTime() + (60 * 60 * 1000)); // 1 hour to add as expiry
+            if (data.password == null) {
+                res.status(403).send({
+                    message: `Need to set initial password`
+                });
+            } else {
+                const date = now();
+                const expireDate = date.setTime(date.getTime() + (60 * 60 * 1000)); // 1 hour to add as expiry
 
-            res.send(jwt.sign({
-                email: req.body.email,
-                userType: req.body.userType,
-                tenantId: req.body.tenantId,
-                expires: expireDate
-            }, '1f8b4166-4cd1-490a-9f9f-2e35ed711dbe'));
+                res.send(jwt.sign({
+                    email: req.body.email,
+                    userType: req.body.userType,
+                    tenantId: req.body.tenantId,
+                    expires: expireDate
+                }, '1f8b4166-4cd1-490a-9f9f-2e35ed711dbe'));
+            }
+
         }
     })
 }
@@ -68,6 +79,11 @@ exports.create = (req, res) => {
         name: req.body.name,
         phone: req.body.phone,
         email: req.body.email,
+        password: null,
+        isActive: req.body.isActive,
+        userType: req.body.userType,
+        tenantId: req.body.tenantId,
+        deletedAt: null,
         createdBy: 1,
         updatedBy: 1,
     };

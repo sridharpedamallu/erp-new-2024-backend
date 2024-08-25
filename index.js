@@ -44,6 +44,7 @@ app.use("/api/contact-addresses", require("./routes/contactaddress.routes"));
 app.use("/api/companies", require("./routes/company.routes"));
 app.use("/api/currencies", require("./routes/currency.routes"));
 app.use("/api/tenants", require("./routes/tenant.routes"));
+app.use("/api/auth", require("./routes/auth.routes"));
 
 
 // set port, listen for requests
