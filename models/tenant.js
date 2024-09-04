@@ -15,12 +15,14 @@ module.exports = (sequelize, DataTypes) => {
       Tenant.belongsTo(models.User, { as: 'updator', foreignKey: 'updatedBy', constraints: false });
 
       Tenant.hasMany(models.Company, { foreignKey: 'tenantId', as: 'companies' });
+      Tenant.hasMany(models.User, { foreignKey: 'tenantId', as: 'users' });
 
     }
   }
   Tenant.init({
     name: DataTypes.STRING,
     email: DataTypes.STRING,
+    phone: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
 
     createdBy: DataTypes.INTEGER,

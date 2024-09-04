@@ -1,5 +1,6 @@
 const db = require("../models");
 const { User } = { ...db };
+const jwt = require('jsonwebtoken');
 
 const common_include = [
     {
@@ -71,8 +72,11 @@ exports.findOne = (req, res, model, include) => {
 // Update a record by the id in the request
 exports.update = (req, res, model) => {
     const id = req.params.id;
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+    const data = { ...req.body };
+    data.updatedBy = token.id;
 
-    model.update(req.body, {
+    model.update(data, {
         where: { id: id }
     })
         .then(num => {

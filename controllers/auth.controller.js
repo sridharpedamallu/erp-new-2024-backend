@@ -1,13 +1,13 @@
 const db = require("../models");
-const { User, ResetPassword } = { ...db };
-// const Op = db.Sequelize.Op;
+const { User, ResetPassword, TenantLoginSetup, TenantLoginDomain } = { ...db };
+const jwt = require('jsonwebtoken');
 
 exports.login = (req, res) => {
 
     User.findAll({
         where: { email: req.body.email }
     })
-        .then(data => {
+        .then(async data => {
             if (data.length == 0) {
                 res.status(404).send('User not found');
                 return;
@@ -20,7 +20,38 @@ exports.login = (req, res) => {
                 res.status(404).send('Invalid credentials');
                 return;
             }
-            res.json(data[0]);
+            if (data[0].userType != 999 && data[0].tenantId == null) {
+                res.status(500).send('Tenant not assigned to this user, Invalid user');
+                return;
+            }
+
+            if (data[0].tenantId != null) {
+                const settings = await TenantLoginSetup.findAll({ where: { tenantId: data[0].tenantId } });
+                const domains = await TenantLoginDomain.findAll({ where: { tenantId: data[0].tenantId } });
+
+                if (settings[0]?.domainRestricted) {
+                    const tempDomains = domains.map(row => row.domain);
+                    const emailDomain = req.body.email.split("@")[1];
+                    if (tempDomains.find(t => t == emailDomain) == undefined) {
+                        res.status(500).send('Email domain not allowed to login. contact your support team');
+                        return;
+                    }
+                }
+            }
+
+            const loginData = {
+                "id": data[0].id,
+                "name": data[0].name,
+                "phone": data[0].phone,
+                "email": data[0].email,
+                "userType": data[0].userType,
+                "tenantId": data[0].tenantId,
+                "isActive": data[0].isActive,
+                "loginTime": Date.now()
+            }
+
+            const token = jwt.sign({ ...loginData }, 'mySecretKey');
+            res.json({ "token": token, ...loginData });
         });
 
 };

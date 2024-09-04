@@ -1,33 +1,28 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
-
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Tenants', {
+    await queryInterface.createTable('TenantLoginSetups', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
-        type: Sequelize.STRING
+      tenantId: {
+        type: Sequelize.INTEGER
       },
-      email: {
-        type: Sequelize.STRING
+      domainRestricted: {
+        type: Sequelize.BOOLEAN
       },
-      phone: {
-        type: Sequelize.STRING
-      },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true
+      clientLoginAccess: {
+        type: Sequelize.BOOLEAN
       },
       createdBy: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       updatedBy: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -36,14 +31,10 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      },
-      deletedAt: {  // Add deletedAt field
-        type: Sequelize.DATE
       }
-
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Tenants');
+    await queryInterface.dropTable('TenantLoginSetups');
   }
 };

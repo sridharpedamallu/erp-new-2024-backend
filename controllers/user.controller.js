@@ -31,7 +31,16 @@ exports.findOne = (req, res) => {
     _filter.id = req.params.id;
     c.findAll(req, res, User, include, _filter)
 };
-exports.update = (req, res) => { c.update(req, res, User) }
+exports.update = (req, res) => {
+    User.findOne({ where: { email: req.body.email, id: { [Op.ne]: req.params.id } } }).then(data => {
+        if (data) {
+            res.status(500).send({ message: "Email already in use" });
+            return;
+        } else {
+            c.update(req, res, User)
+        }
+    })
+}
 exports.delete = (req, res) => { c.delete(req, res, User) }
 exports.restore = (req, res) => { c.restore(req, res, User) }
 
@@ -65,7 +74,6 @@ exports.auth = (req, res) => {
 
 // Create and Save a new User
 exports.create = (req, res) => {
-
     // Validate request
     if (!req.body.name) {
         res.status(400).send({
@@ -88,16 +96,25 @@ exports.create = (req, res) => {
         updatedBy: 1,
     };
 
-    // Save User in the database
-    User.create(user)
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the User."
-            });
-        });
+    User.findOne({ where: { email: user.email } }).then(data => {
+        if (data) {
+            res.status(500).send({ message: "Email already in use" });
+            return;
+        } else {
+            // Save User in the database
+            User.create(user)
+                .then(data => {
+                    res.send(data);
+                })
+                .catch(err => {
+                    res.status(500).send({
+                        message:
+                            err.message || "Some error occurred while creating the User."
+                    });
+                });
+        }
+    })
+
+
 };
 
