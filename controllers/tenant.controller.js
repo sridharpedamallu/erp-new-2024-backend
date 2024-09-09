@@ -23,6 +23,15 @@ const filter = { "isActive": true };
 
 // exports.findAll = (req, res) => { c.findAll(req, res, Tenant, include, filter) };
 exports.findAll = (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
+
     Tenant.findAll({
         where: { ...filter },
         include,
@@ -55,15 +64,68 @@ exports.findAll = (req, res) => {
             });
         });
 };
-exports.findOne = (req, res) => { c.findOne(req, res, Tenant, include) };
-exports.update = (req, res) => { c.update(req, res, Tenant) }
-exports.delete = (req, res) => { c.delete(req, res, Tenant) }
-exports.restore = (req, res) => { c.restore(req, res, Tenant) }
+exports.findOne = (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
+    c.findOne(req, res, Tenant, include)
+};
+exports.update = (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
+    c.update(req, res, Tenant)
+}
+exports.delete = (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
+    c.delete(req, res, Tenant)
+}
+exports.restore = (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
+    c.restore(req, res, Tenant)
+}
 
 // Create and Save a new User
 exports.create = (req, res) => {
 
     const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
+
     // Validate request
     if (!req.body.name) {
         res.status(400).send({
@@ -105,6 +167,16 @@ exports.create = (req, res) => {
 };
 
 exports.getLoginSettings = async (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
+
     const settings = await TenantLoginSetup.findAll({ where: { tenantId: req.params.id } });
     const domains = await TenantLoginDomain.findAll({ where: { tenantId: req.params.id } });
     if (settings.length == 0) {
@@ -118,6 +190,15 @@ exports.getLoginSettings = async (req, res) => {
 }
 
 exports.setLoginSettings = async (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999) {
+        res.status(500).send({
+            message:
+                err.message || "User type is not authorised to view this data"
+        });
+        return;
+    }
     const loginSettings = {
         domainRestricted: req.body.domainRestricted,
         clientLoginAccess: req.body.clientLoginAccess,

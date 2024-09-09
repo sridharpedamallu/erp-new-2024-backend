@@ -3,7 +3,6 @@ const db = require("../models");
 const User = db.User;
 const Op = db.Sequelize.Op;
 const c = require('./common.controller');
-
 const jwt = require('jsonwebtoken');
 
 const include = [
@@ -32,6 +31,25 @@ exports.findOne = (req, res) => {
     c.findAll(req, res, User, include, _filter)
 };
 exports.update = (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999 && req.body.userType == 999) {
+        res.status(500).send({
+            message:
+                err.message || "you are not authorised to create this type of user"
+        });
+        return;
+    }
+
+    if (token.userType != 999 && token.id == req.body.id) {
+        res.status(500).send({
+            message:
+                err.message || "you are not authorised to update your own data"
+        });
+        return;
+    }
+
+
     User.findOne({ where: { email: req.body.email, id: { [Op.ne]: req.params.id } } }).then(data => {
         if (data) {
             res.status(500).send({ message: "Email already in use" });
@@ -74,6 +92,16 @@ exports.auth = (req, res) => {
 
 // Create and Save a new User
 exports.create = (req, res) => {
+    const token = jwt.verify(req.headers.authorization.split(' ')[1], 'mySecretKey');
+
+    if (token.userType != 999 && req.body.userType == 999) {
+        res.status(500).send({
+            message:
+                err.message || "you are not authorised to create this type of user"
+        });
+        return;
+    }
+
     // Validate request
     if (!req.body.name) {
         res.status(400).send({
@@ -92,8 +120,8 @@ exports.create = (req, res) => {
         userType: req.body.userType,
         tenantId: req.body.tenantId,
         deletedAt: null,
-        createdBy: 1,
-        updatedBy: 1,
+        createdBy: token.id,
+        updatedBy: token.id,
     };
 
     User.findOne({ where: { email: user.email } }).then(data => {
